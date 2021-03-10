@@ -8,5 +8,10 @@ const config = {
   messagingSenderId: process.env.REACT_APP_FIREBASE_MESSAGING_SENDER_ID,
   appId: process.env.REACT_APP_FIREBASE_APP_ID,
 };
-firebase.initializeApp(config);
+console.log(config)
+try {
+  firebase.initializeApp(config);
+} catch(e) {
+  console.error('>>> firebase init failed', e)
+}
 export default firebase;
