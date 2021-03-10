@@ -55,12 +55,15 @@ function App() {
     }, [clipboard]);
 
     return (
-      <div>
+      <div className="clipboardForm">
         {
           noMatch &&
           <p>No clipboard found.</p>
         }
-        <p>{clipboard && clipboard.text}</p>
+        {
+          clipboard &&
+          <p className="clipboardUrl">{clipboard.text}</p>
+        }
         {
           isDestroyed &&
           <p>This clipboard was successfully destroyed. You cannot access to it anymore.</p>
@@ -88,12 +91,15 @@ function App() {
     }
 
     return (
-      <div>
+      <div className="clipboardForm">
         <form onSubmit={formSubmit}>
           <input
+            className="input"
+            autoFocus="true"
             type="text"
             name="test"
-            placeholder="Text to copy"
+            placeholder="Text to save"
+            required
             onChange={({ target }) => setText(target.value)}
           />
           <button type="submit">Submit</button>
@@ -101,10 +107,10 @@ function App() {
 
         {
           url &&
-          <p>Your clipboard is available at <a href={url}>{url}</a></p>
+          <p className="clipboardUrl">Your clipboard is available at <a href={url}>{url}</a></p>
         }
         
-        <p>Your clipboard will be automatically destroyed on first read.</p>
+        <p className="warning">Your clipboard will be automatically destroyed on first read.</p>
       </div>
     )
   }
