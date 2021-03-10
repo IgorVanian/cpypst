@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import './App.css';
 import {
+  BrowserRouter,
   Switch,
   Route,
   useParams
@@ -109,16 +110,18 @@ function App() {
   }
 
   return (
-    <div className="App">
-      <Switch>
-        <Route exact path="/">
-          <Form />
-        </Route>
-        <Route path="/:clipboardId">
-          <Clipboard />
-        </Route>
-      </Switch>
-    </div>
+    <BrowserRouter>
+      <div className="App">
+        <Switch>
+          <Route exact path="/">
+            <Form />
+          </Route>
+          <Route path="/:clipboardId">
+            <Clipboard />
+          </Route>
+        </Switch>
+      </div>
+    </BrowserRouter>
   );
 }
 
