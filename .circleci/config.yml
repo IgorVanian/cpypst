@@ -1,9 +1,15 @@
 version: 2.1
 orbs:
   aws-s3: circleci/aws-s3@1.0.11
+
+workflows:
+  use-aws-context:
+    jobs:
+      - build:
+          context: AWS
+
 jobs:
   build:
-    context: AWS
     docker:
       - image: circleci/node:12.9.1-browsers
   
