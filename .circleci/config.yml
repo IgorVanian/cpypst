@@ -27,6 +27,7 @@ jobs:
       - run: CI=false npm run build
 
       - aws-s3/sync:
+          context: AWS
           from: build
           to: 's3://cpypst.io/'
           arguments: |
