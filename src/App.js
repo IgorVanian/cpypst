@@ -78,7 +78,7 @@ function App() {
 
     const publishClipboard = (clipboard) => {
       db.collection("clipboards").add(clipboard).then(() => {
-        setUrl(`https://cmd-c.me/${clipboard.clipboardId}`);
+        setUrl(`https://cpypst.io/${clipboard.clipboardId}`);
       }).catch(e => console.log(">>> error publishing clipboard", e))
     };
 
