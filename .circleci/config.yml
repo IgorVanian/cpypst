@@ -3,6 +3,7 @@ orbs:
   aws-s3: circleci/aws-s3@1.0.11
 jobs:
   build:
+    context: AWS
     docker:
       - image: circleci/node:12.9.1-browsers
   
@@ -27,7 +28,6 @@ jobs:
       - run: CI=false npm run build
 
       - aws-s3/sync:
-          context: AWS
           from: build
           to: 's3://cpypst.io/'
           arguments: |
