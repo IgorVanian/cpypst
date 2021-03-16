@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useContext } from 'react';
 import './App.css';
 import {
   BrowserRouter,
@@ -7,13 +7,14 @@ import {
   useParams
 } from "react-router-dom";    
 import firebase from './services/firebase';
-
+import { SignInWithGoogle } from './Login';
 import { customAlphabet } from 'nanoid'
+import { UserContext } from './context';
 
 const generateHash = () => customAlphabet('0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ-_', 6)();
 
 function App() {
-
+  const [user, setUser] = useState(null);
   const [db] = useState(firebase.firestore());
 
   const Clipboard = () => {
@@ -72,6 +73,19 @@ function App() {
     )
   }
 
+  const User = () => {
+    const { user } = useContext(UserContext);
+    console.log(user)
+    if(user) {
+      return (
+        <div>
+          <p>Hello {user.displayName}.</p>
+        </div>
+      )
+    }
+    return null;
+  }
+
   const Form = () => {
     const [text, setText] = useState();
     const [url, setUrl] = useState();
@@ -95,7 +109,7 @@ function App() {
         <form onSubmit={formSubmit}>
           <input
             className="input"
-            autoFocus="true"
+            autoFocus={true}
             type="text"
             name="test"
             placeholder="Text to save"
@@ -111,23 +125,28 @@ function App() {
         }
         
         <p className="warning">Your clipboard will be automatically destroyed on first read.</p>
+
+        <SignInWithGoogle />
+        <User />
       </div>
     )
   }
 
   return (
-    <BrowserRouter>
-      <div className="App">
-        <Switch>
-          <Route exact path="/">
-            <Form />
-          </Route>
-          <Route path="/:clipboardId">
-            <Clipboard />
-          </Route>
-        </Switch>
-      </div>
-    </BrowserRouter>
+    <UserContext.Provider value={{ user, setUser }}>
+      <BrowserRouter>
+        <div className="App">
+          <Switch>
+            <Route exact path="/">
+              <Form />
+            </Route>
+            <Route path="/:clipboardId">
+              <Clipboard />
+            </Route>
+          </Switch>
+        </div>
+      </BrowserRouter>
+    </UserContext.Provider>
   );
 }
 
