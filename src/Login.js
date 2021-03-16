@@ -41,12 +41,12 @@ export const SignInWithGoogle = () => {
   }
 
   return (
-      user ?
-      <div>
-        <button onClick={signOut}>Sign out</button>
-      </div> :
-      <div>
-        <button onClick={signInWithGoogle}>Sign In with Google</button>
+    <div>
+      {
+        user ?
+        <button className="singin-button" onClick={signOut}>Sign out</button> :
+        <button className="singin-button" onClick={signInWithGoogle}>Sign In with Google</button>
+      }
       </div>
   )
 }

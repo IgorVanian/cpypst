@@ -16,6 +16,19 @@ const generateHash = () => customAlphabet('0123456789abcdefghijklmnopqrstuvwxyzA
 function App() {
   const [user, setUser] = useState(null);
   const [db] = useState(firebase.firestore());
+  
+  const destroyRemoteClipboard = async (clipboardId, callback = () => {}) => {
+    console.log('>>> destroying remote clipboard', clipboardId);
+    const snapshot = await db.collection("clipboards").where('clipboardId', '==', clipboardId).get();
+    if(snapshot) {
+      snapshot.forEach(function(doc) {
+        doc.ref.delete().then(() => {
+          console.log('>>> clipboard deleted');
+          callback();
+        });
+      });
+    }
+  }
 
   const Clipboard = () => {
     const { clipboardId } = useParams();
@@ -34,29 +47,16 @@ function App() {
       snapshot.forEach(doc => setClipboard(doc.data()));
     }
 
-    const destroyRemoteClipboard = async () => {
-      console.log('>>> destroying remote clipboard', clipboardId);
-      const snapshot = await db.collection("clipboards").where('clipboardId', '==', clipboardId).get();
-      if(snapshot) {
-        snapshot.forEach(function(doc) {
-          doc.ref.delete().then(() => {
-            console.log('>>> clipboard deleted');
-            setIsDestroyed(true);
-          });
-        });
-      }
-    }
-
     useEffect(() => {
       getClipboard(clipboardId);
     }, [clipboardId]);
 
     useEffect(() => {
-      if(clipboard && !clipboard.keepAlive) destroyRemoteClipboard();
+      if(clipboard && !clipboard.keepAlive) destroyRemoteClipboard(clipboardId, () => setIsDestroyed(true));
     }, [clipboard]);
 
     return (
-      <div className="clipboardForm">
+      <div className="main">
         {
           noMatch &&
           <p>No clipboard found.</p>
@@ -75,11 +75,64 @@ function App() {
 
   const User = () => {
     const { user } = useContext(UserContext);
-    console.log(user)
     if(user) {
       return (
         <div>
           <p>Hello {user.displayName}.</p>
+        </div>
+      )
+    }
+    return null;
+  }
+  
+  const MyClipboads = () => {
+    const { user } = useContext(UserContext);
+    const [clipboards, setClipboards] = useState([]);
+    
+    const fetchUserClipboards = async () => {
+      try {
+        const snapshot = await db.collection("clipboards")
+          .where('keepAlive', '==', true)
+          .where('userId', '==', user.uid).get();
+        if (snapshot.empty) {
+          return;
+        }
+        const _clipboards = [];
+        snapshot.forEach(doc => _clipboards.push(doc.data()));
+        setClipboards(_clipboards);
+      } catch (e) {
+        console.error(e);
+      }
+    }
+    
+    useEffect(() => {
+      if(user) fetchUserClipboards();
+    }, [user])
+    
+    console.log(clipboards)
+    if(user) {
+      return (
+        <div className="userClipboards-container">
+          My clipboards
+          <ul className="userClipboards">
+            {
+              clipboards.map(({text, clipboardId}) => 
+                <li className="clipboard-item">
+                  <button 
+                    className="clipboard-destroy"
+                    onClick={() => {
+                      if (window.confirm("Do you really want to destroy this clipboard?")) {
+                        destroyRemoteClipboard(clipboardId, fetchUserClipboards);
+                      }
+                    }}
+                  >
+                    Destroy
+                  </button>
+                  {text}
+                </li>
+              )
+            }
+          </ul>
         </div>
       )
     }
@@ -113,11 +166,14 @@ function App() {
     }
 
     return (
-      <div className="clipboardForm">
+      <div className="main">
+        <SignInWithGoogle />
+        <User />
         <form onSubmit={formSubmit}>
           <input
             className="input"
             autoFocus={true}
+            maxLength={80}
             type="text"
             name="test"
             placeholder="Text to save"
@@ -126,32 +182,30 @@ function App() {
           />
           {
             user &&
-            <label>
-              Don't destroy after read
-              <input 
-                type="checkbox" 
-                name="keepAlive" 
-                id="keepAlive"
-                checked={keepAlive}
-                onChange={({ target }) => setKeepAlive(target.checked)}
-              />
-            </label>
+            <div className="keepAlive-checkbox-container">
+              <label>
+                Don't destroy after read
+                <input 
+                  type="checkbox" 
+                  name="keepAlive" 
+                  id="keepAlive"
+                  checked={keepAlive}
+                  onChange={({ target }) => setKeepAlive(target.checked)}
+                />
+              </label>
+            </div>
           }
           <button type="submit">Submit</button>
+          {
+            url &&
+            <p className="clipboardUrl">Your clipboard is available at <a href={url}>{url}</a></p>
+          }
+          {
+            !keepAlive &&
+            <p className="warning">Your clipboard will be automatically destroyed on first read.</p>
+          }
         </form>
-
-        {
-          url &&
-          <p className="clipboardUrl">Your clipboard is available at <a href={url}>{url}</a></p>
-        }
-        
-        {
-          !keepAlive &&
-          <p className="warning">Your clipboard will be automatically destroyed on first read.</p>
-        }
-
-        <SignInWithGoogle />
-        <User />
+        <MyClipboads />
       </div>
     )
   }
