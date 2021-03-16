@@ -26,7 +26,7 @@ export const SignInWithGoogle = () => {
     try {
       const provider = new firebase.auth.GoogleAuthProvider();
       await firebase.auth().setPersistence(firebase.auth.Auth.Persistence.LOCAL);
-      await firebase.auth().signInWithPopup(provider);
+      await firebase.auth().signInWithRedirect(provider);
     } catch(e) {
       console.error('>>> signInWithGoogle error', e);
     }
