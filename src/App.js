@@ -259,6 +259,13 @@ function App() {
               <Clipboard />
             </Route>
           </Switch>
+          <div className="footer-signature">
+            <p>With ❤️ by Igor Vanian</p>
+            <a href="https://iva.dev">iva.dev</a>
+            <p>
+              Say <a href="mailto:hi@iva.dev">hi</a>
+            </p>
+          </div>
         </div>
       </BrowserRouter>
     </UserContext.Provider>

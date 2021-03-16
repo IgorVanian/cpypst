@@ -1,23 +1,32 @@
 .App {
   display: flex;
+  flex-direction: column;
   align-items: center;
   height: 100vh;
+  margin: 0 auto;
 }
 
+
+
 .main {
+  padding-top: 20px;  
   box-shadow: 0 2px 3px rgb(0 0 0 / 16%);
   border-radius: 10px;
-  padding: 50px;
-  width: 500px;
-  margin-left: auto;
-  margin-right: auto;
+  width: 100%;
   text-align: center;
   background-color: #b19cd9;
+}
+
+@media only screen and (min-width: 768px) {
+  .main {
+    width: 30%;
+  }
 }
 
 .main form {
   background-color: #9cd9b1;
   padding: 20px;
+  margin: 20px;
   border-radius: 10px;
   display: flex;
   flex-direction: column;
@@ -185,4 +194,8 @@ li.clipboard-item button {
 
 .singin-button {
   margin: 10px;
+}
+
+.footer-signature {
+  text-align: center;
 }
