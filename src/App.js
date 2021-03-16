@@ -10,6 +10,7 @@ import firebase from './services/firebase';
 import { SignInWithGoogle } from './Login';
 import { customAlphabet } from 'nanoid'
 import { UserContext } from './context';
+import { FaRegCopy, FaTimesCircle } from 'react-icons/fa';
 
 const generateHash = () => customAlphabet('0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ-_', 6)();
 
@@ -84,20 +85,32 @@ function App() {
     }
     return null;
   }
+
+  const CopyToolTip = ({ visible }) => {
+    console.log('>>> CopyToolTip visible', visible)
+    return (
+      <span 
+        style={{
+          opacity: visible ? 1 : 0,
+          visibility: visible ? "visible" : "hidden"
+        }} className="tooltiptext">Copied!</span>
+    )
+  }
   
   const MyClipboads = () => {
     const { user } = useContext(UserContext);
     const [clipboards, setClipboards] = useState([]);
+    const [clipboardCopied, setClipboardCopied] = useState(null);
     
     const fetchUserClipboards = async () => {
+      const _clipboards = [];
       try {
         const snapshot = await db.collection("clipboards")
           .where('keepAlive', '==', true)
           .where('userId', '==', user.uid).get();
         if (snapshot.empty) {
-          return;
+          return setClipboards(_clipboards);
         }
-        const _clipboards = [];
         snapshot.forEach(doc => _clipboards.push(doc.data()));
         setClipboards(_clipboards);
       } catch (e) {
@@ -108,6 +121,15 @@ function App() {
     useEffect(() => {
       if(user) fetchUserClipboards();
     }, [user])
+
+    useEffect(() => {
+      if(clipboardCopied) {
+        setTimeout(() => {
+          setClipboardCopied(null)
+        }, 1000)
+      } else {
+      }
+    }, [clipboardCopied])
     
     console.log(clipboards)
     if(user) {
@@ -118,17 +140,31 @@ function App() {
             {
               clipboards.map(({text, clipboardId}) => 
                 <li className="clipboard-item">
-                  <button 
-                    className="clipboard-destroy"
-                    onClick={() => {
-                      if (window.confirm("Do you really want to destroy this clipboard?")) {
-                        destroyRemoteClipboard(clipboardId, fetchUserClipboards);
-                      }
-                    }}
-                  >
-                    Destroy
-                  </button>
-                  {text}
+                  <div className="clipboard-item-controls">
+                    <button 
+                      className="clipboard-destroy"
+                      onClick={() => {
+                        if (window.confirm("Do you really want to destroy this clipboard?")) {
+                          destroyRemoteClipboard(clipboardId, fetchUserClipboards);
+                        }
+                      }}
+                    >
+                      <FaTimesCircle color="red" />
+                    </button>
+                    <button 
+                      className="clipboard-copy"
+                      onClick={() => {
+                        navigator.clipboard.writeText(text)
+                        setClipboardCopied(clipboardId);
+                      }}
+                    >
+                      <CopyToolTip visible={clipboardCopied == clipboardId} />
+                      <FaRegCopy />
+                    </button>
+                  </div>
+                  <p className="clipboard-item-text">
+                    {text}
+                  </p>
                 </li>
               )
             }
@@ -201,7 +237,8 @@ function App() {
             <p className="clipboardUrl">Your clipboard is available at <a href={url}>{url}</a></p>
           }
           {
-            !keepAlive &&
+            keepAlive ? 
+            <p className="keepAlive-notice">Visit this page on any device and sign-in to retrieve your saved clipboards.</p> :
             <p className="warning">Your clipboard will be automatically destroyed on first read.</p>
           }
         </form>

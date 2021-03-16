@@ -76,6 +76,15 @@ input:-webkit-autofill::first-line {
   font-weight: bold;
 }
 
+.keepAlive-notice {
+  background-color: #3e8e41;
+  border-radius: 5px;
+  text-align: center;
+  padding: 5px;
+  font-weight: bold;
+  color: white;
+}
+
 .clipboardUrl {
   background-color: white;
   padding: 10px;
@@ -106,22 +115,68 @@ ul.userClipboards {
 }
 
 li.clipboard-item {
+  display: flex;
+  flex: 1;
   background-color: #c0aee0;
   margin: 5px;
   min-height: 30px;
   border-radius: 10px;
-  display: flex;
-  align-items: center;
-  padding: 5px;
+  overflow: hidden;
 }
 
-.clipboard-destroy {
-  margin-right: 10px;
-  border-radius: 10px;
-  background-color: white;
+li div.clipboard-item-controls {
+  display: flex;
+  justify-content: space-evenly;
+}
+
+li p.clipboard-item-text {
+  display: flex;
+  flex: 1;
+  padding-left: 15px;
+  padding-right: 15px;
+}
+
+li.clipboard-item button {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #cec1e7;
   border: none;
   outline: none;
-  height: 20px;
+  width: 40px;
+}
+
+
+.clipboard-copy .tooltiptext {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  padding: 10px;
+  margin-bottom: 60px;
+
+  transition: all 1s ease-in-out;
+
+  background-color: black;
+  color: #fff;
+  text-align: center;
+  border-radius: 6px;
+  z-index: 1;
+}
+
+/* .clipboard-copy:active .tooltiptext {
+  opacity: 1;
+  visibility: visible;
+} */
+
+.tooltiptext::after {
+  content: " ";
+  position: absolute;
+  top: 100%; /* At the bottom of the tooltip */
+  left: 50%;
+  margin-left: -5px;
+  border-width: 5px;
+  border-style: solid;
+  border-color: black transparent transparent transparent;
 }
 
 .keepAlive-checkbox-container {
