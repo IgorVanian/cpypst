@@ -52,7 +52,7 @@ function App() {
     }, [clipboardId]);
 
     useEffect(() => {
-      if(clipboard) destroyRemoteClipboard();
+      if(clipboard && !clipboard.keepAlive) destroyRemoteClipboard();
     }, [clipboard]);
 
     return (
@@ -89,6 +89,9 @@ function App() {
   const Form = () => {
     const [text, setText] = useState();
     const [url, setUrl] = useState();
+    const [keepAlive, setKeepAlive] = useState(false);
+
+    const { user } = useContext(UserContext);
 
     const publishClipboard = (clipboard) => {
       db.collection("clipboards").add(clipboard).then(() => {
@@ -98,10 +101,15 @@ function App() {
 
     const formSubmit = (e) => {
       e.preventDefault();
-      publishClipboard({
+      const clipboard = {
         text,
         clipboardId: generateHash()
-      });
+      }
+
+      if(user) clipboard.userId = user.uid;
+      if(keepAlive) clipboard.keepAlive = keepAlive;
+
+      publishClipboard(clipboard);
     }
 
     return (
@@ -116,6 +124,19 @@ function App() {
             required
             onChange={({ target }) => setText(target.value)}
           />
+          {
+            user &&
+            <label>
+              Don't destroy after read
+              <input 
+                type="checkbox" 
+                name="keepAlive" 
+                id="keepAlive"
+                checked={keepAlive}
+                onChange={({ target }) => setKeepAlive(target.checked)}
+              />
+            </label>
+          }
           <button type="submit">Submit</button>
         </form>
 
@@ -124,7 +145,10 @@ function App() {
           <p className="clipboardUrl">Your clipboard is available at <a href={url}>{url}</a></p>
         }
         
-        <p className="warning">Your clipboard will be automatically destroyed on first read.</p>
+        {
+          !keepAlive &&
+          <p className="warning">Your clipboard will be automatically destroyed on first read.</p>
+        }
 
         <SignInWithGoogle />
         <User />
